@@ -8,7 +8,7 @@ variables:
  - name: repository
    value: algodynamic
  - name: channel
-   value: testing
+   value: stable
 
 jobs:
 
@@ -37,22 +37,18 @@ jobs:
     displayName: 'Conan Configuration'
 
   - bash: |
-      export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
       conan create . $(repository)/$(channel) -pr android-25-armv7
     displayName: 'Create Conan Package for Android (25, armeabi-v7a)'
 
   - bash: |
-      export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
       conan create . $(repository)/$(channel) -pr android-25-armv8
     displayName: 'Create Conan Package for Android (25, arm64-v8a)'
 
   - bash: |
-      export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
       conan create . $(repository)/$(channel) -pr android-25-x86
     displayName: 'Create Conan Package for Android (25, x86)'
 
   - bash: |
-      export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
       conan create . $(repository)/$(channel) -pr android-25-x86_64
     displayName: 'Create Conan Package for Android (25, x86_64)'
 
