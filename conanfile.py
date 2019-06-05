@@ -44,7 +44,7 @@ class ZbarConan(ConanFile):
 
     def requirements(self):
         if self.settings.os == 'Android' and int(self.settings.os.api_level.value) < 28:
-            self.requires('iconv/1.16.0@planetmarshall/testing')
+            self.requires('iconv/1.16.0@algodynamic/testing')
 
     def source(self):
         patch = r'''--- config.sub.original	2019-06-03 22:24:50.736966356 +0100
