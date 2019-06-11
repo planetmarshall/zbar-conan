@@ -1,0 +1,62 @@
+trigger:
+- master
+- develop
+- feature/*
+
+variables:
+ - group: credentials
+ - name: repository
+   value: algodynamic
+ - name: channel
+   value: stable
+
+jobs:
+
+- job: 'Build'
+
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.6' 
+      architecture: 'x64'
+
+  - bash: |
+      pip install --upgrade pip
+      pip install conan
+    displayName: 'Install Prerequisites'
+
+  - bash: |
+      git clone https://github.com/planetmarshall/conan-profiles.git
+      sed -i "s|ndk=.*|ndk=$ANDROID_HOME/ndk-bundle|" conan-profiles/profiles/android
+      conan config install conan-profiles
+      conan remote add algodynamic https://api.bintray.com/conan/algodynamic/algodynamic 
+    displayName: 'Conan Configuration'
+
+  - bash: |
+      conan create . $(repository)/$(channel) -pr android-25-armv7
+    displayName: 'Create Conan Package for Android (25, armeabi-v7a)'
+
+  - bash: |
+      conan create . $(repository)/$(channel) -pr android-25-armv8
+    displayName: 'Create Conan Package for Android (25, arm64-v8a)'
+
+  - bash: |
+      conan create . $(repository)/$(channel) -pr android-25-x86
+    displayName: 'Create Conan Package for Android (25, x86)'
+
+  - bash: |
+      conan create . $(repository)/$(channel) -pr android-25-x86_64
+    displayName: 'Create Conan Package for Android (25, x86_64)'
+
+  - bash: |
+      conan user -p $API_KEY -r algodynamic planetmarshall
+      conan upload zbar/0.10.0@algodynamic/$(channel) -r algodynamic --all
+    displayName: 'Upload Conan Package to Repository (Develop branch only)'
+    failOnStderr: true
+    env: 
+      API_KEY: $(BINTRAY_API_KEY)
+
