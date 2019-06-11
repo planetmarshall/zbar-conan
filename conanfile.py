@@ -10,6 +10,7 @@ class ZbarConan(ConanFile):
     url = 'http://zbar.sourceforge.net/'
     description = 'ZBar is an open source software suite for reading bar codes from various sources'
     settings = 'os', 'compiler', 'build_type', 'arch'
+    exports = ['configure.patch']
     options = {
         'shared': [True, False],
         'fPIC': [True, False],
@@ -71,7 +72,8 @@ class ZbarConan(ConanFile):
 
         url = '''https://downloads.sourceforge.net/project/zbar/zbar/0.10/zbar-0.10.tar.bz2'''
         tools.get(url)
-        tools.patch('zbar-0.10/config', patch_string=patch)
+        tools.patch(base_path='zbar-0.10/config', patch_string=patch)
+        tools.patch(base_path='zbar-0.10', patch_file='configure.patch')
 
     def build(self):
 
@@ -79,13 +81,14 @@ class ZbarConan(ConanFile):
             return 'yes' if arg else 'no'
 
         config = ['--enable-shared=' + on(self.options.shared)]
-        config += ['--enable-static' + on(not self.options.shared)]
+        config += ['--enable-static=' + on(not self.options.shared)]
 
         if 'iconv' in self.deps_cpp_info.deps:
             config += ['--with-libiconv-prefix=' + self.deps_cpp_info['iconv'].rootpath]
 
         if self.settings.os == 'Android':
-            config += ['--disable-pthread']
+            #config += ['--disable-pthread']
+            pass
 
         config += [
             '--with-x=' + on(self.options.with_x),
